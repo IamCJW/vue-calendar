@@ -352,6 +352,6 @@
   }
 </script>
 
-<style scoped>
+<style lang="stylus" scoped>
   @import "../assets/calendar.styl";
 </style>

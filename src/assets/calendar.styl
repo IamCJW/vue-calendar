@@ -1,137 +1,109 @@
-
-.calendar-box {
+.calendar-box
   font-size: .14rem;
-}
+  .calendar-hd
+    position: relative;
+    z-index: 1;
+    .calendar-date-box
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      padding: .2rem .2rem .1rem;
+      align-items: center;
+      .calendar-date
+        display: flex;
+        font-size: .12rem;
+        color: #ffffff;
+        line-height: 1;
+        .calendar-date-month
+          font-size: .28rem;
+          margin-right: .04rem;
+        div:last-child
+          display: flex;
+          flex-direction: column;
+          line-height: .14rem;
+      .calendar-today-button
+        padding: .1rem;
+        line-height: .14rem;
+        background: #ffffff;
+        border-radius: 100%;
+        color: #04a3ee;
+        position: relative;
+        right: -.1rem;
+        box-shadow: 0 0 0.1rem #fff;
+    .calendar-week
+      display: flex;
+      justify-content: space-around;
+      line-height: .3rem;
+      font-size: .1rem;
+      color: #ffffff;
+      span
+        padding: 0 .1rem;
+        margin: 0 -.1rem;
 
-.calendar-hd {
-  position: relative;
-  z-index: 1;
-}
-
-.calendar-week {
-  display: flex;
-  justify-content: space-around;
-  line-height: .3rem;
-  font-size: .1rem;
-  color: #ffffff;
-}
-
-.calendar-week > span {
-  padding: 0 .1rem;
-  margin: 0 -.1rem;
-}
 /*日期容器*/
-.calendar-day-wrapper{
+.calendar-day-wrapper
   position: relative;
   width: 100vw;
   overflow-x: hidden;
-}
-.calendar-day-container{
-  width: 300vw;
-  overflow: auto;
-  position: relative;
-  left:-100vw;
-}
-/*容器内部样式*/
-.calendar-day-group {
-  display: flex;
-  flex-wrap: wrap;
-  width: 100vw;
-  height: 62vw;
-  background: #ffffff;
-  overflow: auto;
-  padding: .1rem .8vw;
-  float: left;
-  box-sizing: border-box;
-  border-left: 1px solid #ddd;
-}
-.calendar-day-box {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  flex: 0 0 14vw;
-  color: #666;
-  font-weight: 600;
-  float: left;
-}
+  .calendar-day-container
+     width: 300vw;
+     overflow: auto;
+     position: relative;
+     left: -100vw;
+    .calendar-day-group
+      display: flex;
+      flex-wrap: wrap;
+      width: 100vw;
+      height: 62vw;
+      background: #ffffff;
+      overflow: auto;
+      padding: .1rem .8vw;
+      float: left;
+      box-sizing: border-box;
+      border-left: 1px solid #ddd;
+      .calendar-day-box
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        flex: 0 0 14vw;
+        color: #666;
+        font-weight: 600;
+        float: left;
+        &.otherMonth
+          opacity: .6;
+        span
+          position: relative;
+          display: block;
+          text-align: center;
+          border-radius: 100%;
+          line-height: .2rem;
+          width: .38rem;
+          height: .38rem;
+          padding: .1rem;
+          margin: -.1rem;
+          box-sizing: border-box;
+          user-select: none;
+        &.event-flag span:after
+          content: '';
+          width: 15%;
+          height: 15%;
+          background: #04a3ee;
+          position: absolute;
+          bottom: 10%;
+          left: 42.5%;
+          border-radius: 100%;
+        &.today-flag span
+          background: rgba(4, 178, 255, 0.49);
+          color: #ffffff;
+        &.today-flag.select-flag span
+          background: rgb(4, 178, 255);
+          color: #ffffff;
+          border: none;
+        &.select-flag span
+          border: 1px solid #dddddd
+        &.event-flag.select-flag span:after
+          background: #f4d10d;
 
-.otherMonth {
-  opacity: .6;
-}
 
-.calendar-day-box span {
-  position: relative;
-  display: block;
-  text-align: center;
-  border-radius: 100%;
-  line-height: .2rem;
-  width: .38rem;
-  height: .38rem;
-  padding: .1rem;
-  margin: -.1rem;
-  box-sizing: border-box;
-  user-select:none;
-}
 
-.calendar-day-box.event-flag span:after {
-  content: '';
-  width: 15%;
-  height: 15%;
-  background: #04a3ee;
-  position: absolute;
-  bottom: 10%;
-  left: 42.5%;
-  border-radius: 100%;
-}
 
-.calendar-day-box.today-flag span {
-  background: rgba(4, 178, 255, 0.49);
-  color: #ffffff;
-}
-.calendar-day-box.today-flag.select-flag span {
-  background: rgb(4, 178, 255);
-  color: #ffffff;
-  border: none;
-}
-.calendar-day-box.select-flag span {
-  border: 1px solid #dddddd;
-}
-
-.calendar-day-box.event-flag.select-flag span:after {
-  background: #f4d10d;
-}
-
-.calendar-date-box {
-  position: relative;
-  display: flex;
-  justify-content: space-between;
-  padding: .2rem .2rem .1rem;
-  align-items: center;
-}
-.calendar-today-button{
-  padding: .1rem;
-  line-height: .14rem;
-  background: #ffffff;
-  border-radius: 100%;
-  color: #04a3ee;
-  position: relative;
-  right: -.1rem;
-  box-shadow: 0 0 0.1rem #fff;
-}
-.calendar-date {
-  display: flex;
-  font-size: .12rem;
-  color: #ffffff;
-  line-height: 1;
-}
-
-.calendar-date-month {
-  font-size: .28rem;
-  margin-right: .04rem;
-}
-
-.calendar-date > div:last-child {
-  display: flex;
-  flex-direction: column;
-  line-height: .14rem;
-}
