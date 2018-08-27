@@ -1,5 +1,6 @@
 <template>
   <div class="calendar-box" id="app">
+    <!--日历主体-->
     <div class="calendar-hd" :style="{background:'#'+hdBg}">
       <div class="calendar-date-box">
         <div class="calendar-date">
@@ -37,6 +38,31 @@
                 :class="{}"
                 @click="selectDate(3,item-dateItem.startWeek-dateItem.fullDay)"><span>{{item-dateItem.startWeek-dateItem.fullDay}}</span>
                 </span>
+        </div>
+      </div>
+    </div>
+    <!--日期选择主体-->
+    <div class="mask">
+      <div class="data-select-box">
+        <div class="data-select-head">
+          <div>取消</div>
+          <div>确定</div>
+        </div>
+        <div class="data-select-content">
+          <div class="data-select-value-box">
+            <div class="data-select-group" v-vueswipe="selectSwipeDo">
+              <span>2003 <span>年</span></span>
+            </div>
+            <div class="data-select-group">
+              <span>03<span>月</span></span>
+            </div>
+            <div class="data-select-group">
+              <span>03<span>日</span></span>
+            </div>
+          </div>
+          <div class="content-group"><span v-for="item in 100">{{item+2000}}</span></div>
+          <div class="content-group"><span v-for="item in 12">{{item < 10 ? '0'+item : item}}</span></div>
+          <div class="content-group"><span v-for="item in 30">{{item < 10 ? '0'+item : item}}</span></div>
         </div>
       </div>
     </div>
@@ -126,8 +152,6 @@
       _this.move(e);
     }, false);
   };
-
-
   export default {
     name: "calendar",
     data() {
@@ -145,7 +169,7 @@
         selectYear: '',//选择时间
         selectMonth: '',
         selectDay: '',
-        trsXOld: '',
+        trsXOld: '',//历史滚动幅度
         trsX: '',//日历滚动的幅度
         disX: '',//距离
         isSwipe: false,
@@ -193,7 +217,7 @@
       this.swipeDone();
       this.windowWidth = document.body.clientWidth;
       this.trsXOld = this.windowWidth;
-      this.trsX = this.windowWidth
+      this.trsX = this.windowWidth;
     },
     methods: {
       /*
@@ -246,8 +270,8 @@
       },
       /*
       *时间选择函数
-      * @param {number} type 1:上月，2：本月，3：下月
-      * @param {number} 选中的时间
+      * @type {number} type 1:上月，2：本月，3：下月
+      * @day {number} 选中的时间
       * */
       selectDate(type, day) {
         switch (type) {
@@ -284,13 +308,15 @@
         num = num.slice(-6);
         this.hdBg = num;
       },
+      /*
+      * 跳转至今日事件
+      * */
       toToday() {
         this.initData(this.currentYear, this.currentMonth - 1, this.currentDay);
         this.hdBg = '04a3ee';
       },
       /*
       * 滑动事件
-      *
       * */
       swipeDo(el, e, disXY) {
         let disX = disXY.disX;
@@ -348,6 +374,9 @@
           }
         }, false);
       },
+      selectSwipeDo(el,e,disXY){
+        console.log(disXY);
+      }
     },
   }
 </script>
