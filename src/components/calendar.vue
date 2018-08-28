@@ -156,6 +156,9 @@
   };
   export default {
     name: "calendar",
+    props: {
+      prop_call_back: {},
+    },
     data() {
       return {
         windowWidth: '',
@@ -287,6 +290,14 @@
         this.selectYear = date.getFullYear();
         this.selectMonth = date.getMonth() + 1;
         this.selectDay = date.getDate();
+        if (this.prop_call_back) {
+          let selectDate = {
+            year: this.selectYear,
+            month: this.selectMonth,
+            day: this.selectDay,
+          };
+          this.prop_call_back(selectDate);
+        }
       },
       /*
       *时间选择函数
@@ -297,14 +308,13 @@
         switch (type) {
           case 1:
             this.initData(this.year, this.month - 1, day);
-            this.selectDay = day;
             break;
           case 2:
-            this.selectDay = day;
+            let _this = this;
+            this.initSelectDate(new Date(_this.year, _this.month, day));
             break;
           case 3:
             this.initData(this.year, this.month + 1, day);
-            this.selectDay = day;
             break;
         }
         this.mathToSixteen();
@@ -390,7 +400,6 @@
         this.trsYear = this.trsYearOld = (y - 2003) * this.itemHeight;
         this.trsMonth = this.trsMonthOld = (m - 3) * this.itemHeight;
         this.trsDay = this.trsDayOld = (d - 3) * this.itemHeight;
-        console.log(this.trsMonthOld);
       },
       selectDatePicker(type) {
         type === 1 ? this.select_pickerShow = true : this.select_pickerShow = false;
