@@ -113,14 +113,15 @@ $main-color = #04a3ee
   right 0
   bottom 0
   background rgba(0, 0, 0, .3)
-  z-index 999
+  z-index 998
 
 .data-select-box
-  position absolute
+  position fixed
   bottom 0
   height 60vw
   width 100vw
   background #f7f7f7
+  z-index 999
   .data-select-head
     display flex
     padding 0 .12rem
@@ -137,7 +138,7 @@ $main-color = #04a3ee
         color rgba(255,255,255,.95)
   .data-select-content
     position relative
-    overflow auto
+    overflow hidden
     .data-select-value-box
       position absolute
       top 0

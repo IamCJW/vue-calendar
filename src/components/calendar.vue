@@ -3,7 +3,7 @@
     <!--日历主体-->
     <div class="calendar-hd" :style="{background:'#'+hdBg}">
       <div class="calendar-date-box">
-        <div class="calendar-date">
+        <div class="calendar-date" @click="selectDatePickerShow">
           <div class="calendar-date-month">{{selectMonth || currentMonth}}月</div>
           <div>
             <div class="calendar-day-year">{{selectYear || currentYear}}年</div>
@@ -18,7 +18,7 @@
     </div>
     <div class="calendar-day-wrapper">
       <div ref="calendardaycontainer" class="calendar-day-container" v-vueswipe="swipeDo"
-           style="left: -100vw;    transition:left 2s;">
+           style="left: -100vw;">
         <div class="calendar-day-group" v-for="dateItem in dateArr">
                 <span class="calendar-day-box otherMonth"
                       v-for="item in dateItem.total"
@@ -42,28 +42,30 @@
       </div>
     </div>
     <!--日期选择主体-->
-    <div class="mask">
-      <div class="data-select-box">
-        <div class="data-select-head">
-          <div>取消</div>
-          <div>确定</div>
-        </div>
-        <div class="data-select-content">
-          <div class="data-select-value-box">
-            <div class="data-select-group" v-vueswipe="selectSwipeDo">
-              <span>2003 <span>年</span></span>
-            </div>
-            <div class="data-select-group">
-              <span>03<span>月</span></span>
-            </div>
-            <div class="data-select-group">
-              <span>03<span>日</span></span>
-            </div>
+    <div class="mask" v-show="select_pickerShow" @click.stop="selectDatePicker(0)"></div>
+    <div class="data-select-box" v-show="select_pickerShow">
+      <div class="data-select-head">
+        <div @click="selectDatePicker(0)">取消</div>
+        <div @click="selectDatePickerChoose">确定</div>
+      </div>
+      <div class="data-select-content">
+        <div class="data-select-value-box">
+          <div class="data-select-group" data-type="Year" v-vueswipe="selectSwipeDo">
+            <span>2003 <span>年</span></span>
           </div>
-          <div class="content-group"><span v-for="item in 100">{{item+2000}}</span></div>
-          <div class="content-group"><span v-for="item in 12">{{item < 10 ? '0'+item : item}}</span></div>
-          <div class="content-group"><span v-for="item in 30">{{item < 10 ? '0'+item : item}}</span></div>
+          <div class="data-select-group" data-type="Month" v-vueswipe="selectSwipeDo">
+            <span>03<span>月</span></span>
+          </div>
+          <div class="data-select-group" data-type="Day" v-vueswipe="selectSwipeDo">
+            <span>03<span>日</span></span>
+          </div>
         </div>
+        <div class="content-group" ref="year" :style="{transform:'translate3d(0,-'+trsYear+'px,0)'}"><span
+          v-for="item in 100">{{item+2000}}</span></div>
+        <div class="content-group" ref="month" :style="{transform:'translate3d(0,-'+trsMonth+'px,0)'}"><span
+          v-for="item in 12">{{item < 10 ? '0'+item : item}}</span></div>
+        <div class="content-group" ref="day" :style="{transform:'translate3d(0,-'+trsDay+'px,0)'}"><span
+          v-for="item in select_DayLength">{{item < 10 ? '0'+item : item}}</span></div>
       </div>
     </div>
   </div>
@@ -169,10 +171,26 @@
         selectYear: '',//选择时间
         selectMonth: '',
         selectDay: '',
+        isSwipe: false,//滑动是否结束
         trsXOld: '',//历史滚动幅度
         trsX: '',//日历滚动的幅度
         disX: '',//距离
-        isSwipe: false,
+        itemHeight: '',//日期选择器高度
+        trsYearOld: '',//日期选择历史位移
+        trsMonthOld: '',
+        trsDayOld: '',
+        trsYear: 0,//日期选择实时位移
+        trsMonth: 0,
+        trsDay: 0,
+        disY: '',//日期距离
+        select_pickerShow: false,//选择器显隐
+        select_type: 1,//当前改变的属性
+        select_YearLength: 100,//年选择长度
+        select_MonthLength: 12,//月选择长度
+        select_DayLength: 30,//日选择长度
+        select_Year: '',//日期选择器年
+        select_Month: '',//日期选择器月
+        select_Day: '',//日期选择器日
       }
     },
     directives: {
@@ -215,9 +233,11 @@
     mounted() {
       this.initData();
       this.swipeDone();
+      this.selectSwipeDone();
       this.windowWidth = document.body.clientWidth;
       this.trsXOld = this.windowWidth;
       this.trsX = this.windowWidth;
+      this.itemHeight = this.windowWidth / 10;
     },
     methods: {
       /*
@@ -278,7 +298,6 @@
           case 1:
             this.initData(this.year, this.month - 1, day);
             this.selectDay = day;
-            this.mathToSixteen(2);
             break;
           case 2:
             this.selectDay = day;
@@ -286,21 +305,16 @@
           case 3:
             this.initData(this.year, this.month + 1, day);
             this.selectDay = day;
-            this.mathToSixteen(1);
             break;
         }
+        this.mathToSixteen();
       },
       /*
       * 根据日期修改颜色
       * */
-      mathToSixteen(event) {
-        let str = this.hdBg;
-        let num = parseInt(str, 16);
-        if (event === 1) {
-          num = num - 64;
-        } else {
-          num = num + 64;
-        }
+      mathToSixteen() {
+        let num = parseInt('04a3ee', 16);
+        num = num - (this.selectMonth - this.currentMonth) * 64;
         num = num.toString(16);
         if (num.length <= 5) {
           num = '0' + num;
@@ -333,54 +347,122 @@
         this.isSwipe = true;
       },
       swipeDone() {
-        let _this = this;
-        //结束给其赋值
-        let EVENT_END;
-        if ('ontouchstart' in window) {
-          EVENT_END = 'touchend';
-        } else {
-          EVENT_END = 'mouseup';
-        }
-        document.querySelector('.calendar-day-container').addEventListener(EVENT_END, function (e) {
-          if (_this.isSwipe) {
-            let disX = _this.disX;
+        document.querySelector('.calendar-day-container').addEventListener('touchend', (e) => {
+          if (this.isSwipe) {
+            let disX = this.disX;
             if (disX < 0) {
-              if (Math.abs(disX) > _this.windowWidth / 3) {
-                _this.trsX = 2 * _this.windowWidth;
-                _this.trsXOld = _this.trsX;
-                _this.$refs.calendardaycontainer.style.left = '-' + _this.trsX + 'px';
-                _this.month = _this.month + 1;
-                _this.initData(_this.year, _this.month, _this.selectDay);
-                _this.mathToSixteen(1);
+              if (Math.abs(disX) > this.windowWidth / 3) {
+                this.trsX = 2 * this.windowWidth;
+                this.trsXOld = this.trsX;
+                this.$refs.calendardaycontainer.style.left = '-' + this.trsX + 'px';
+                this.month = this.month + 1;
+                this.initData(this.year, this.month, this.selectDay);
               } else {
-                _this.trsX = _this.trsXOld;
-                _this.$refs.calendardaycontainer.style.left = '-' + _this.trsX + 'px';
+                this.trsX = this.trsXOld;
+                this.$refs.calendardaycontainer.style.left = '-' + this.trsX + 'px';
               }
             }
             if (disX > 0) {
-              if (Math.abs(disX) > _this.windowWidth / 3) {
-                _this.trsX = 0;
-                _this.trsXOld = _this.trsX;
-                _this.$refs.calendardaycontainer.style.left = '-' + _this.trsX + 'px';
-                _this.month = _this.month - 1;
-                _this.initData(_this.year, _this.month, _this.selectDay);
-                _this.mathToSixteen(2);
+              if (Math.abs(disX) > this.windowWidth / 3) {
+                this.trsX = 0;
+                this.trsXOld = this.trsX;
+                this.$refs.calendardaycontainer.style.left = '-' + this.trsX + 'px';
+                this.month = this.month - 1;
+                this.initData(this.year, this.month, this.selectDay);
               } else {
-                _this.trsX = _this.trsXOld;
-                _this.$refs.calendardaycontainer.style.left = '-' + _this.trsX + 'px';
+                this.trsX = this.trsXOld;
+                this.$refs.calendardaycontainer.style.left = '-' + this.trsX + 'px';
               }
             }
-            _this.isSwipe = false;
+            this.isSwipe = false;
           }
+          this.mathToSixteen();
         }, false);
       },
-      selectSwipeDo(el,e,disXY){
-        console.log(disXY);
+      /*
+      * 初始化时间选择
+      * */
+      initSelectDatePicker(y, m, d) {
+        this.select_DayLength = new Date(y, m, 0).getDate();
+        this.select_Year = y;
+        this.select_Month = m;
+        this.select_Day = d;
+        this.trsYear = this.trsYearOld = (y - 2003) * this.itemHeight;
+        this.trsMonth = this.trsMonthOld = (m - 3) * this.itemHeight;
+        this.trsDay = this.trsDayOld = (d - 3) * this.itemHeight;
+        console.log(this.trsMonthOld);
+      },
+      selectDatePicker(type) {
+        type === 1 ? this.select_pickerShow = true : this.select_pickerShow = false;
+      },
+      selectDatePickerShow() {
+        let _this = this;
+        this.initSelectDatePicker(_this.selectYear, _this.selectMonth, _this.selectDay);
+        this.selectDatePicker(1);
+      },
+      selectDatePickerChoose() {
+        this.initData(this.select_Year, this.select_Month - 1, this.select_Day);
+        this.selectDatePicker(0);
+        this.mathToSixteen();
+      },
+      selectSwipeDo(el, e, disXY) {
+        let type = el.dataset.type;
+        let disY = disXY.disY;
+        this.select_type = type;
+        let trsY = this[`trs${this.select_type}`];
+        let trsYOld = this[`trs${this.select_type}Old`];
+        let selectLength = this[`select_${this.select_type}Length`];
+        this.disY = disY;
+        trsY = trsYOld;
+        trsY = trsY - disY;
+        if (trsY < -2 * this.itemHeight) {
+          trsY = -2 * this.itemHeight;
+        }
+        if (trsY > Number(selectLength - 3) * this.itemHeight) {
+          trsY = Number(selectLength - 3) * this.itemHeight;
+        }
+        this[`trs${this.select_type}`] = trsY;
+        this.isSwipe = true;
+      },
+      selectSwipeDone() {
+        document.querySelectorAll('.data-select-group').forEach((item) => {
+          item.addEventListener('touchend', (e) => {
+            if (this.isSwipe) {
+              let select_type = this.select_type;
+              let trsY = this[`trs${select_type}`];
+              let selectLength = this[`select_${select_type}Length`];
+              let trsNum = parseInt(trsY / this.itemHeight);
+              let isOver = trsY % this.itemHeight > this.itemHeight / 4 ? true : false;
+              if (isOver) {
+                trsY = (trsNum + 1) * this.itemHeight;
+              } else {
+                trsY = trsNum * this.itemHeight;
+              }
+              if (trsY < -2 * this.itemHeight) {
+                trsY = -2 * this.itemHeight;
+              }
+              if (trsY > Number(selectLength - 3) * this.itemHeight) {
+                trsY = Number(selectLength - 3) * this.itemHeight;
+              }
+              this[`trs${select_type}`] = this[`trs${select_type}Old`] = trsY;
+              if (select_type === 'Year') {
+                this[`select_${select_type}`] = trsY / this.itemHeight + 2003;
+              } else {
+                this[`select_${select_type}`] = trsY / this.itemHeight + 3;
+              }
+              let _this = this;
+              this.select_DayLength = new Date(_this.select_Year, _this.select_Month, 0).getDate();
+              if (this.trsDay > Number(this.select_DayLength - 3) * this.itemHeight) {
+                this.trsDay = this.trsDayOld = Number(this.select_DayLength - 3) * this.itemHeight;
+              }
+              this.isSwipe = false;
+            }
+          }, false);
+        });
       }
     },
   }
 </script>
-
 <style lang="stylus" scoped>
   @import "../assets/calendar.styl";
 </style>
